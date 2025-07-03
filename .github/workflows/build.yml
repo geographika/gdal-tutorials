@@ -1,0 +1,45 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]  # Trigger on pushes to main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest  # Windows runner
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup conda
+        shell: pwsh
+        run: |
+            conda create --yes --name gdal
+            conda activate gdal
+            conda install --yes -c conda-forge gdal
+            conda --version
+            gdal --version
+
+      - name: Create output folder
+        run: mkdir ./hillshade/data
+
+      - name: Run hillshade
+        shell: pwsh
+        working-directory: ./hillshade/data
+        run: |
+            ../hillshade.ps1
+
+      - name: Create output folder
+        run: mkdir public
+
+      - name: Copy TIF files
+        run: cp hillshade/data/*.tif public/
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
