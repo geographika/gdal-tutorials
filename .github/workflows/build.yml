@@ -53,13 +53,14 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git clone --single-branch --branch docs https://github.com/${{ github.repository }} docs
+          git clone --single-branch --branch docs https://github.com/${{ github.repository }} output
           # rm -rf docs/*
           # cp -r output/* docs/
           # cd docs
-          # Remove-Item -Recurse -Force docs\*
-          Copy-Item -Recurse -Force hillshade/data/*.tif docs/
-          Set-Location docs
+          Remove-Item -Recurse -Force output/*
+          Copy-Item -Recurse -Force docs/* output/
+          Copy-Item -Recurse -Force hillshade/data/*.tif output/
+          Set-Location output
           git add .
           git commit -m "Deploy from GitHub Actions"
           git push origin docs
