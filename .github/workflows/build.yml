@@ -57,7 +57,9 @@ jobs:
           # rm -rf docs/*
           # cp -r output/* docs/
           # cd docs
-          Remove-Item -Recurse -Force output/*
+          if (Test-Path "output") {
+            Remove-Item -Recurse -Force output/*
+          }
           Copy-Item -Recurse -Force docs/* output/
           Copy-Item -Recurse -Force hillshade/data/*.tif output/
           Set-Location output
