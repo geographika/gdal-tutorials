@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ]  # Trigger on pushes to main branch
 
+
+permissions:
+  contents: write  # required for pushing
+
 jobs:
   build-and-deploy:
     runs-on: windows-latest  # Windows runner
@@ -48,26 +52,16 @@ jobs:
         run: |
             ../hillshade.ps1
 
-      - name: Deploy to docs branch
+      - name: Copy output
         shell: pwsh
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            mkdir output
+            Copy-Item -Recurse -Force docs/* output/
+            Copy-Item -Recurse -Force hillshade/data/*.tif output/
 
-          # Clone the docs branch into 'output'
-          git clone --single-branch --branch docs https://github.com/${{ github.repository }} output
-
-          # Remove all existing files in the cloned 'output' folder (except .git)
-          if (Test-Path "output") {
-            Get-ChildItem -Path output -Exclude ".git" | Remove-Item -Recurse -Force
-          }
-
-          # Copy new content into the output folder
-          Copy-Item -Recurse -Force docs/* output/
-          Copy-Item -Recurse -Force hillshade/data/*.tif output/
-
-          # Commit and push changes
-          Set-Location output
-          git add .
-          git commit -m "Deploy from GitHub Actions" -q || echo "No changes to commit"
-          git push origin docs
+      - name: Deploy to docs branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: docs  # or gh-pages
