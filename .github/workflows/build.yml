@@ -52,13 +52,17 @@ jobs:
         run: cp hillshade/data/*.tif docs/
 
       - name: Deploy to docs branch
+        shell: pwsh
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git clone --single-branch --branch docs https://github.com/${{ github.repository }} docs
-          rm -rf docs/*
-          cp -r output/* docs/
-          cd docs
-          git add --all
+          # rm -rf docs/*
+          # cp -r output/* docs/
+          # cd docs
+          # Remove-Item -Recurse -Force docs\*
+          Copy-Item -Recurse -Force output\* docs\
+          Set-Location docs
+          git add .
           git commit -m "Deploy from GitHub Actions"
           git push origin docs
