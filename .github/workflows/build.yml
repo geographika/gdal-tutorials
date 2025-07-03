@@ -12,6 +12,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Miniconda on Windows
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          # activate-environment: hillenv
+          # environment-file: environment.yml  # Optional, if you have one
+          python-version: 3.11
+
       - name: Setup conda
         shell: pwsh
         run: |
