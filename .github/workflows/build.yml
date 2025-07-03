@@ -4,6 +4,11 @@ on:
   push:
     branches: [ main ]  # Trigger on pushes to main branch
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-deploy:
     runs-on: windows-latest  # Windows runner
@@ -12,20 +17,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Cache conda
+        uses: actions/cache@v3
+        env:
+          # Increase this value to reset cache if etc/example-environment.yml has not changed
+          CACHE_NUMBER: 0
+        with:
+          # Use faster GNU tar
+          enableCrossOsArchive: true
+          path: D:\conda_pkgs_dir
+          key:
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+            hashFiles('environment.yml') }}
+
       - name: Set up Miniconda on Windows
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
-          # activate-environment: hillenv
-          # environment-file: environment.yml  # Optional, if you have one
+          activate-environment: gdal
+          environment-file: environment.yml  # Optional, if you have one
           python-version: 3.11
 
-      - name: Setup conda
+      - name: Version Details
         shell: pwsh
         run: |
-            conda create --yes --name gdal
-            conda activate gdal
-            conda install --yes -c conda-forge gdal
             conda --version
             gdal --version
 
@@ -37,9 +52,6 @@ jobs:
         working-directory: ./hillshade/data
         run: |
             ../hillshade.ps1
-
-      - name: Create output folder
-        run: mkdir public
 
       - name: Copy TIF files
         run: cp hillshade/data/*.tif public/
