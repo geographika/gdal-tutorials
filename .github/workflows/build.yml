@@ -53,16 +53,21 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Clone the docs branch into 'output'
           git clone --single-branch --branch docs https://github.com/${{ github.repository }} output
-          # rm -rf docs/*
-          # cp -r output/* docs/
-          # cd docs
+
+          # Remove all existing files in the cloned 'output' folder (except .git)
           if (Test-Path "output") {
-            Remove-Item -Recurse -Force output/*
+            Get-ChildItem -Path output -Exclude ".git" | Remove-Item -Recurse -Force
           }
+
+          # Copy new content into the output folder
           Copy-Item -Recurse -Force docs/* output/
           Copy-Item -Recurse -Force hillshade/data/*.tif output/
+
+          # Commit and push changes
           Set-Location output
           git add .
-          git commit -m "Deploy from GitHub Actions"
+          git commit -m "Deploy from GitHub Actions" -q || echo "No changes to commit"
           git push origin docs
