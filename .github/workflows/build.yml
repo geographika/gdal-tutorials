@@ -48,9 +48,6 @@ jobs:
         run: |
             ../hillshade.ps1
 
-      - name: Copy TIF files
-        run: cp hillshade/data/*.tif docs/
-
       - name: Deploy to docs branch
         shell: pwsh
         run: |
@@ -61,7 +58,7 @@ jobs:
           # cp -r output/* docs/
           # cd docs
           # Remove-Item -Recurse -Force docs\*
-          Copy-Item -Recurse -Force output\* docs\
+          Copy-Item -Recurse -Force hillshade/data/*.tif docs/
           Set-Location docs
           git add .
           git commit -m "Deploy from GitHub Actions"
