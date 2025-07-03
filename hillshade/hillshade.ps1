@@ -14,8 +14,6 @@ Start-Process -FilePath "7z-x64.exe" -ArgumentList "/S" -Wait
 & "C:\Program Files\7-Zip\7z.exe" x "RGEALTI_2-0_5M_ASC_LAMB93-IGN69_D090_2021-01-13.7z" -y
 
 # create a GTI from all the asc files
-gdal driver gti create --layer dem --dst-crs EPSG:2154 --output-format FlatGeobuf *.asc tileindex.gti.fgb
-
 $files = "RGEALTI_2-0_5M_ASC_LAMB93-IGN69_D090_2021-01-13/RGEALTI/1_DONNEES_LIVRAISON_2021-10-00009/RGEALTI_MNT_5M_ASC_LAMB93_IGN69_D090/*.asc"
 gdal driver gti create --layer dem --dst-crs EPSG:2154 --output-format FlatGeobuf $files tileindex.gti.fgb
 
@@ -26,7 +24,7 @@ gdal vector pipeline `
     ! filter --where "insee_com='90065'" `
     ! write --output-layer=commune commune.fgb
 
-ogr2ogr -f "FlatGeobuf" commune.fgb WFS:"https://data.geopf.fr/wfs/ows?version=2.0.0&typename=ADMINEXPRESS-COG.2017:commune" -where "insee_com='90065'"
+# ogr2ogr -f "FlatGeobuf" commune.fgb WFS:"https://data.geopf.fr/wfs/ows?version=2.0.0&typename=ADMINEXPRESS-COG.2017:commune" -where "insee_com='90065'"
 
 # https://data.geopf.fr/wfs/ows?VERSION=2.0.0&SRSNAME=
 # https://gdal.org/en/stable/drivers/vector/wfs.html
