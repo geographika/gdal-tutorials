@@ -4,11 +4,6 @@ on:
   push:
     branches: [ main ]  # Trigger on pushes to main branch
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   build-and-deploy:
     runs-on: windows-latest  # Windows runner
@@ -54,12 +49,16 @@ jobs:
             ../hillshade.ps1
 
       - name: Copy TIF files
-        run: cp hillshade/data/*.tif public/
+        run: cp hillshade/data/*.tif docs/
 
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./public
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+      - name: Deploy to docs branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git clone --single-branch --branch docs https://github.com/${{ github.repository }} docs
+          rm -rf docs/*
+          cp -r output/* docs/
+          cd docs
+          git add --all
+          git commit -m "Deploy from GitHub Actions"
+          git push origin docs
