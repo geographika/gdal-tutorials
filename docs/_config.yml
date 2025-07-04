@@ -1,0 +1,21 @@
+title: GDAL Tutorials
+description: Scripts and tests for the GDAL Tutorials
+theme: minima
+
+# Where your site source lives (use '.' if you're serving from the root)
+baseurl: ""
+url: "https://https://geographika.github.io/gdal-tutorials/.github.io"
+
+markdown: kramdown
+highlighter: rouge
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Exclude files/folders from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor

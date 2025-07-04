@@ -37,6 +37,8 @@ gdal raster slope clipped.tif slope.tif --overwrite --progress
 gdal raster aspect clipped.tif aspect.tif --overwrite
 gdal raster color-map --color-map=color-map-percentage.txt clipped.tif color.tif --overwrite
 
+gdal_translate -outsize 1200 0 -r bilinear -of PNG color.tif color.png -co worldfile=YES -co zlevel=8
+
 gdal raster info --min-max clipped.tif
 
 # get some stats at the end?

@@ -57,7 +57,7 @@ jobs:
         run: |
             mkdir output
             Copy-Item -Recurse -Force docs/* output/
-            Copy-Item -Recurse -Force hillshade/data/*.tif output/
+            Copy-Item -Recurse -Force hillshade/data/*.png output/
 
       - name: Deploy to docs branch
         uses: peaceiris/actions-gh-pages@v4
