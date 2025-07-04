@@ -58,6 +58,7 @@ jobs:
             mkdir output
             Copy-Item -Recurse -Force docs/* output/
             Copy-Item -Recurse -Force hillshade/data/*.png output/
+            Copy-Item -Recurse -Force hillshade/data/*.tif output/
 
       - name: Deploy to docs branch
         uses: peaceiris/actions-gh-pages@v4
@@ -65,3 +66,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output
           publish_branch: docs  # or gh-pages
+          enable_jekyll: true
