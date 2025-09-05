@@ -1,2 +1,5 @@
 /hillshade/data
 .vs
+/hillshade/tmp
+/hillshade/tmp-traditional
+/duckdb/tmp
