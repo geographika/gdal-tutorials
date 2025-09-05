@@ -23,6 +23,7 @@ gdal raster clip --like commune.fgb  tileindex.gti.fgb clipped.tif --overwrite -
 # should mention -lgeos_c
 
 gdal raster scale clipped.tif out_8bit_gray.tif --output-data-type Byte --creation-option COMPRESS=LZW
+
 gdal raster hillshade --zfactor=5 clipped.tif hillshade.tif --overwrite --progress
 gdal raster slope clipped.tif slope.tif --overwrite --progress
 gdal raster aspect clipped.tif aspect.tif --overwrite

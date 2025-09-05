@@ -1,0 +1,59 @@
+MAP
+    IMAGETYPE "png"
+    MAXSIZE 4096
+    NAME "GDAL"
+    RESOLUTION 72
+    SIZE 800 800
+    # EXTENT 979997.5 6710002.5 1014997.5 6755002.5
+    EXTENT 977816 6742006 998431 6755017
+    PROJECTION
+        "EPSG:2154"
+    END
+    FONTSET "fontset.txt"
+    LAYER
+        STATUS ON
+        TILEITEM "location"
+        UNITS METERS
+        NAME "dtm"
+        CONNECTION "./tmp/tileindex.gti.fgb"
+        TYPE POLYGON
+        CONNECTIONTYPE OGR
+        DATA "SELECT SUBSTR(location, 140, 9) + '.asc' AS short_name FROM dtm"
+        LABELITEM "short_name"
+        CLASS
+            LABEL
+                FONT "Cutive-Mono"
+                TYPE TRUETYPE
+                SIZE 12
+                POSITION CC
+                PARTIALS TRUE
+                COLOR 0 0 0
+            END
+            STYLE
+                GEOMTRANSFORM (outer([shape]))
+                OUTLINECOLOR 50 50 50 # "#8C1127"
+                OUTLINEWIDTH 1
+                PATTERN
+                    2 2
+                END
+            END
+        END
+    END
+
+    LAYER
+        PROJECTION
+            "EPSG:4326"
+        END
+        STATUS ON
+        UNITS METERS
+        NAME "commune"
+        CONNECTION "./tmp/commune.fgb"
+        TYPE POLYGON
+        CONNECTIONTYPE OGR
+        CLASS
+            STYLE
+                COLOR "#367c2b"
+            END
+        END
+    END
+END

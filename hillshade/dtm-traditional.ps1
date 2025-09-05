@@ -1,52 +1,46 @@
 conda activate gdal
-# updates do not seem to work
-# conda install -c gdal-master -c conda-forge gdal-master::gdal --force-reinstall --yes
-# conda env remove --name gdal --yes
-# conda activate gdal
-# conda install -c gdal-master -c conda-forge gdal-master::gdal --yes
-
-gdal --version
-# GDAL 3.12.0dev-ac95cad0fc-dirty, released 2025/07/29
-
-# cd D:\GitHub\gdal-tutorials\hillshade\tmp
 
 # gather data
 
-# hiding progress output significantly speeds up downloading files
+# speed-up downloads
 $ProgressPreference = "SilentlyContinue"
 
-# download the zip file
 Invoke-WebRequest `
   -Uri "https://data.geopf.fr/telechargement/download/RGEALTI/RGEALTI_2-0_5M_ASC_LAMB93-IGN69_D090_2021-01-13/RGEALTI_2-0_5M_ASC_LAMB93-IGN69_D090_2021-01-13.7z" `
   -OutFile "RGEALTI_2-0_5M_ASC_LAMB93-IGN69_D090_2021-01-13.7z"
 
-# download the 7-zip installer
 Invoke-WebRequest -Uri "https://www.7-zip.com/a/7z2409-x64.exe" -OutFile "7z-x64.exe"
-
-# unzip the contents
 Start-Process -FilePath "7z-x64.exe" -ArgumentList "/S" -Wait
 & "C:\Program Files\7-Zip\7z.exe" x "RGEALTI_2-0_5M_ASC_LAMB93-IGN69_D090_2021-01-13.7z" -y
 
-
 # create a GTI from all the asc files
 $files = "RGEALTI_2-0_5M_ASC_LAMB93-IGN69_D090_2021-01-13/RGEALTI/1_DONNEES_LIVRAISON_2021-10-00009/RGEALTI_MNT_5M_ASC_LAMB93_IGN69_D090/*.asc"
-gdal driver gti create --layer dtm --dst-crs EPSG:2154 $files tileindex.gti.fgb
-
-# clipping
+gdaltindex -lyr_name dtm -t_srs EPSG:2154 -f FlatGeobuf tileindex.gti.fgb $files
 
 gdal vector pipeline `
     ! read WFS:"https://data.geopf.fr/wfs/ows?version=2.0.0&typename=ADMINEXPRESS-COG.2017:commune" `
-    ! set-geom-type --geometry-type Polygon `
     ! filter --where "insee_com='90065'" `
     ! write --output-layer=commune commune.fgb
 
-gdal raster clip --like commune.fgb  tileindex.gti.fgb clipped.tif --overwrite
 
-gdal raster scale clipped.tif out_8bit_gray.tif --output-data-type Byte --creation-option COMPRESS=LZW
-gdal raster hillshade --zfactor=2 clipped.tif hillshade.tif --no-edges --overwrite
-gdal raster slope clipped.tif slope.tif --overwrite
+ogr2ogr -f FlatGeobuf commune.fgb `
+    WFS:"https://data.geopf.fr/wfs/ows?version=2.0.0&typename=ADMINEXPRESS-COG.2017:commune" `
+    -nln commune `
+    -nlt POLYGON `
+    -where "insee_com = '90065'"
+
+gdal raster clip --like commune.fgb  tileindex.gti.fgb clipped.tif --overwrite --allow-bbox-outside-source
+
+gdalwarp -cutline commune.fgb -crop_to_cutline -of GTiff tileindex.gti.fgb clipped.tif
+gdaldem hillshade -z 5 clipped.tif hillshade.tif
+
+# gdal raster slope clipped.tif slope.tif --overwrite --progress
+
+gdaldem slope clipped.tif slope.tif
+
+
 gdal raster aspect clipped.tif aspect.tif --overwrite
-gdal raster color-map --color-map=../color-map-percentage.txt clipped.tif color.tif --add-alpha --overwrite
+gdal raster color-map --color-map=color-map-percentage.txt clipped.tif color.tif --overwrite
 
 gdal_translate -outsize 1200 0 -r bilinear -of PNG color.tif color.png -co worldfile=YES -co zlevel=8
 
@@ -56,7 +50,6 @@ gdal raster info --min-max clipped.tif
 
 # https://gdal.org/en/latest/programs/gdal_raster_color_merge.html
 # Added in version 3.12
+# conda install --yes -c conda-forge gdal --update-all
 # gdal raster color-merge allows the user to colorize a grayscale image with a RGB one.
-gdal raster color-merge --grayscale=hillshade.tif color.tif color-hillshade.jpg --overwrite
-
-gdal_translate -a_nodata 0 hypsometric_combined_with_hillshade.jpg output.png
+# gdal raster color-merge --grayscale=hillshade.tif color.tif hypsometric_combined_with_hillshade.jpg
