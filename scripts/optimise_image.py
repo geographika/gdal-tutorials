@@ -1,4 +1,4 @@
-"""
+r"""
 conda install pillow --yes
 
 cd D:\GitHub\gdal-tutorials\hillshade\tmp
@@ -6,6 +6,9 @@ cd D:\GitHub\gdal-tutorials\hillshade\tmp
 python ../../scripts/optimise_image.py color-hillshade.png
 python ../../scripts/optimise_image.py color-hillshade.png
 python ../../scripts/optimise_image.py color.tif
+
+cd D:\GitHub\gdal-tutorials\scripts
+python optimise_image.py D:\GitHub\gdal-tutorials\duckdb\hexbin.png
 
 """
 import sys
